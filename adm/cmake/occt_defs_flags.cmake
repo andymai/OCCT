@@ -45,7 +45,10 @@ else()
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-elaborated-enum-base")
     set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -Wno-elaborated-enum-base")
   endif()
-  add_definitions(-DOCC_CONVERT_SIGNALS)
+  # OCC_CONVERT_SIGNALS removed for WASM builds: async signal conversion
+  # (setjmp/longjmp) conflicts with -fwasm-exceptions and is irrelevant in
+  # WASM where there are no OS signals. Normal C++ exceptions still work.
+  # add_definitions(-DOCC_CONVERT_SIGNALS)
 endif()
 
 # enable structured exceptions for MSVC
