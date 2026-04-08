@@ -60,9 +60,14 @@ Standard_GUID BRepGraph_VersionStamp::ToGUID(const Standard_GUID& theGraphGUID) 
   const size_t aHash2 =
     opencascade::hashBytes(aBuffer + aHalfOff, static_cast<int>(anOff - aHalfOff));
 
-  Standard_UUID aResultUUID;
-  static_assert(sizeof(size_t) >= 8, "Expected 64-bit size_t");
-  std::memcpy(&aResultUUID, &aHash1, 8);
-  std::memcpy(reinterpret_cast<uint8_t*>(&aResultUUID) + 8, &aHash2, 8);
+  // Value-init so any trailing bytes on 32-bit platforms (e.g. WASM32, where
+  // sizeof(size_t) == 4) are deterministic. On 64-bit the two memcpys below
+  // fully populate the 16-byte UUID, matching upstream behaviour exactly.
+  Standard_UUID aResultUUID{};
+  static_assert(sizeof(size_t) >= 4, "Expected at least 32-bit size_t");
+  std::memcpy(&aResultUUID, &aHash1, sizeof(size_t));
+  std::memcpy(reinterpret_cast<uint8_t*>(&aResultUUID) + sizeof(size_t),
+              &aHash2,
+              sizeof(size_t));
   return Standard_GUID(aResultUUID);
 }
