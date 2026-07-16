@@ -1,0 +1,19 @@
+src/ModelingData/TKGeomBase/GeomLib/GeomLib_CheckCurveOnSurface.cxx
+  s_6918c5910f76be::t_e8f53912cc0987 40,218-219,225,245,284,339-375,441-442,447-448,693,695-696,698-699,714-717,729-735,749-787,799,814,820,822-823,833-837,861,863-864
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "c16749358fff7c2fef240096a628e0d4050dc0d4",
+  "prompts": {},
+  "sessions": {
+    "s_6918c5910f76be": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bee9dc9c-bc95-473f-9bd8-416fdf8f832f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Andy Aragon <hi@andymai.com>"
+    }
+  }
+}
