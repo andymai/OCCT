@@ -52,6 +52,7 @@
 #include <Precision.hxx>
 #include <Standard_DomainError.hxx>
 #include <Standard_NoSuchObject.hxx>
+#include <Standard_NullObject.hxx>
 #include <Standard_NotImplemented.hxx>
 #include <Standard_Integer.hxx>
 #include <NCollection_Array1.hxx>
@@ -63,6 +64,24 @@ IMPLEMENT_STANDARD_RTTIEXT(Geom2dAdaptor_Curve, Adaptor2d_Curve2d)
 
 namespace
 {
+//! Returns the loaded curve, raising if the adaptor never received one.
+//!
+//! The evaluation entry points are reachable from iterative algorithms
+//! (blending, intersection) that can hand back a default-constructed adaptor.
+//! Dereferencing the null handle there is unrecoverable on platforms that
+//! cannot trap a signal, notably WebAssembly, so raise a catchable failure.
+//! Raised unconditionally rather than through Standard_NullObject_Raise_if,
+//! which No_Exception compiles out of Release builds.
+const occ::handle<Geom2d_Curve>& curveOrFail(const occ::handle<Geom2d_Curve>& theCurve,
+                                             const char*                      theWhere)
+{
+  if (theCurve.IsNull())
+  {
+    throw Standard_NullObject(theWhere);
+  }
+  return theCurve;
+}
+
 bool hasEvalRep(const Geom2dAdaptor_Curve::CurveDataVariant& theData)
 {
   if (const Geom2dAdaptor_Curve::BezierData* aBezierData =
@@ -739,7 +758,7 @@ gp_Pnt2d Geom2dAdaptor_Curve::EvalD0(const double theU) const
     case GeomAbs_BezierCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD0(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD0: no curve loaded")->EvalD0(U);
       }
       auto& aBezierData = std::get<BezierData>(myCurveData);
       if (aBezierData.Cache.IsNull())
@@ -753,7 +772,7 @@ gp_Pnt2d Geom2dAdaptor_Curve::EvalD0(const double theU) const
     case GeomAbs_BSplineCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD0(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD0: no curve loaded")->EvalD0(U);
       }
       int                aStart = 0, aFinish = 0;
       const BSplineData& aBSplineData = std::get<BSplineData>(myCurveData);
@@ -775,7 +794,7 @@ gp_Pnt2d Geom2dAdaptor_Curve::EvalD0(const double theU) const
     case GeomAbs_OffsetCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD0(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD0: no curve loaded")->EvalD0(U);
       }
       const auto& anOffsetData = std::get<OffsetData>(myCurveData);
       if (!Geom2d_OffsetCurveUtils::EvaluateD0(U,
@@ -789,7 +808,7 @@ gp_Pnt2d Geom2dAdaptor_Curve::EvalD0(const double theU) const
     }
 
     default:
-      return myCurve->EvalD0(U);
+      return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD0: no curve loaded")->EvalD0(U);
   }
 }
 
@@ -833,7 +852,7 @@ Geom2d_Curve::ResD1 Geom2dAdaptor_Curve::EvalD1(const double theU) const
     case GeomAbs_BezierCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD1(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD1: no curve loaded")->EvalD1(U);
       }
       auto& aBezierData = std::get<BezierData>(myCurveData);
       if (aBezierData.Cache.IsNull())
@@ -847,7 +866,7 @@ Geom2d_Curve::ResD1 Geom2dAdaptor_Curve::EvalD1(const double theU) const
     case GeomAbs_BSplineCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD1(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD1: no curve loaded")->EvalD1(U);
       }
       int                aStart = 0, aFinish = 0;
       const BSplineData& aBSplineData = std::get<BSplineData>(myCurveData);
@@ -869,7 +888,7 @@ Geom2d_Curve::ResD1 Geom2dAdaptor_Curve::EvalD1(const double theU) const
     case GeomAbs_OffsetCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD1(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD1: no curve loaded")->EvalD1(U);
       }
       const auto& anOffsetData = std::get<OffsetData>(myCurveData);
       if (!Geom2d_OffsetCurveUtils::EvaluateD1(U,
@@ -884,7 +903,7 @@ Geom2d_Curve::ResD1 Geom2dAdaptor_Curve::EvalD1(const double theU) const
     }
 
     default:
-      return myCurve->EvalD1(U);
+      return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD1: no curve loaded")->EvalD1(U);
   }
 }
 
@@ -930,7 +949,7 @@ Geom2d_Curve::ResD2 Geom2dAdaptor_Curve::EvalD2(const double theU) const
     case GeomAbs_BezierCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD2(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD2: no curve loaded")->EvalD2(U);
       }
       auto& aBezierData = std::get<BezierData>(myCurveData);
       if (aBezierData.Cache.IsNull())
@@ -944,7 +963,7 @@ Geom2d_Curve::ResD2 Geom2dAdaptor_Curve::EvalD2(const double theU) const
     case GeomAbs_BSplineCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD2(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD2: no curve loaded")->EvalD2(U);
       }
       int                aStart = 0, aFinish = 0;
       const BSplineData& aBSplineData = std::get<BSplineData>(myCurveData);
@@ -966,7 +985,7 @@ Geom2d_Curve::ResD2 Geom2dAdaptor_Curve::EvalD2(const double theU) const
     case GeomAbs_OffsetCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD2(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD2: no curve loaded")->EvalD2(U);
       }
       const auto& anOffsetData = std::get<OffsetData>(myCurveData);
       if (!Geom2d_OffsetCurveUtils::EvaluateD2(U,
@@ -982,7 +1001,7 @@ Geom2d_Curve::ResD2 Geom2dAdaptor_Curve::EvalD2(const double theU) const
     }
 
     default:
-      return myCurve->EvalD2(U);
+      return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD2: no curve loaded")->EvalD2(U);
   }
 }
 
@@ -1050,7 +1069,7 @@ Geom2d_Curve::ResD3 Geom2dAdaptor_Curve::EvalD3(const double theU) const
     case GeomAbs_BezierCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD3(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD3: no curve loaded")->EvalD3(U);
       }
       auto& aBezierData = std::get<BezierData>(myCurveData);
       if (aBezierData.Cache.IsNull())
@@ -1064,7 +1083,7 @@ Geom2d_Curve::ResD3 Geom2dAdaptor_Curve::EvalD3(const double theU) const
     case GeomAbs_BSplineCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD3(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD3: no curve loaded")->EvalD3(U);
       }
       int                aStart = 0, aFinish = 0;
       const BSplineData& aBSplineData = std::get<BSplineData>(myCurveData);
@@ -1087,7 +1106,7 @@ Geom2d_Curve::ResD3 Geom2dAdaptor_Curve::EvalD3(const double theU) const
     case GeomAbs_OffsetCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalD3(U);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD3: no curve loaded")->EvalD3(U);
       }
       const auto& anOffsetData = std::get<OffsetData>(myCurveData);
       if (!Geom2d_OffsetCurveUtils::EvaluateD3(U,
@@ -1104,7 +1123,7 @@ Geom2d_Curve::ResD3 Geom2dAdaptor_Curve::EvalD3(const double theU) const
     }
 
     default:
-      return myCurve->EvalD3(U);
+      return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalD3: no curve loaded")->EvalD3(U);
   }
 }
 
@@ -1139,12 +1158,12 @@ gp_Vec2d Geom2dAdaptor_Curve::EvalDN(const double theU, const int theN) const
       return ElCLib::DN(U, std::get<gp_Parab2d>(myCurveData), N);
 
     case GeomAbs_BezierCurve:
-      return myCurve->EvalDN(U, N);
+      return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalDN: no curve loaded")->EvalDN(U, N);
 
     case GeomAbs_BSplineCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalDN(U, N);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalDN: no curve loaded")->EvalDN(U, N);
       }
       int aStart = 0, aFinish = 0;
       if (IsBoundary(U, aStart, aFinish))
@@ -1153,14 +1172,14 @@ gp_Vec2d Geom2dAdaptor_Curve::EvalDN(const double theU, const int theN) const
       }
       else
       {
-        return myCurve->EvalDN(U, N);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalDN: no curve loaded")->EvalDN(U, N);
       }
     }
 
     case GeomAbs_OffsetCurve: {
       if (hasEvalRep(myCurveData))
       {
-        return myCurve->EvalDN(U, N);
+        return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalDN: no curve loaded")->EvalDN(U, N);
       }
       const auto& anOffsetData = std::get<OffsetData>(myCurveData);
       gp_Vec2d    aDN;
@@ -1178,7 +1197,7 @@ gp_Vec2d Geom2dAdaptor_Curve::EvalDN(const double theU, const int theN) const
     default:
       break;
   }
-  return myCurve->EvalDN(U, N);
+  return curveOrFail(myCurve, "Geom2dAdaptor_Curve::EvalDN: no curve loaded")->EvalDN(U, N);
 }
 
 //=================================================================================================
