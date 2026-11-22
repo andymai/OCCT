@@ -1,0 +1,23 @@
+src/ModelingData/TKGeomBase/GTests/IntAna_IntQuadQuad_Test.cxx
+  s_f5ebe617f2ec28::t_cebf9824c5f3d8 24,32-34,284-334
+  s_f5ebe617f2ec28::t_a331f939f34f4e 335-364
+src/ModelingData/TKGeomBase/IntAna/IntAna_QuadQuadGeo.cxx
+  s_f5ebe617f2ec28::t_e81f9e7f3147ad 67-69,151-152,163
+  s_f5ebe617f2ec28::t_a73fdc7491c7eb 58,153-162,164
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1c22ea88b4d45cda52c9d955ac93160a7ba03011",
+  "prompts": {},
+  "sessions": {
+    "s_f5ebe617f2ec28": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8396284b-762e-44ab-b73b-9e1a9761418f",
+        "model": "claude-fable-5-2"
+      },
+      "human_author": "Andy Aragon <hi@andymai.com>"
+    }
+  }
+}
