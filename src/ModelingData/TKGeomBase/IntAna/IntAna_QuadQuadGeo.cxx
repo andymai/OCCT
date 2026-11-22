@@ -54,9 +54,6 @@
 #include <IntAna2d_AnaIntersection.hxx>
 #include <IntAna2d_IntPoint.hxx>
 
-#include <algorithm>
-#include <limits>
-
 #ifdef DEBUGLINES
   #include <Geom2d_Line.hxx>
 #endif
@@ -138,13 +135,6 @@ AxeOperator::AxeOperator(const gp_Ax1& A1,
   gp_Dir V2 = Axe2.Direction();
   gp_Pnt P1 = Axe1.Location();
   gp_Pnt P2 = Axe2.Location();
-  // Two axes that are one axis in exact arithmetic come out a few units in the
-  // last place apart once their locations are computed, and that is more than
-  // a fixed 1.e-14 as soon as a coordinate is beyond a few tens. So a distance
-  // within the rounding of the coordinates themselves is no distance.
-  const double aMagnitude = std::max(P1.XYZ().Modulus(), P2.XYZ().Modulus());
-  myEPSILON_DISTANCE =
-    std::max(myEPSILON_DISTANCE, 64. * std::numeric_limits<double>::epsilon() * aMagnitude);
   //
   RefineDir(V1);
   RefineDir(V2);
