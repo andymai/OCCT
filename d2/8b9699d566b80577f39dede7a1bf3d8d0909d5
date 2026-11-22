@@ -1,0 +1,21 @@
+src/ModelingData/TKGeomBase/GTests/Extrema_ExtCS_Test.cxx
+  s_f5ebe617f2ec28::t_e9cdc87235ce49 99-165
+src/ModelingData/TKGeomBase/Extrema/Extrema_ExtCS.cxx
+  s_f5ebe617f2ec28::t_b6c8914fe01c0e 39,155-178
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d28b9699d566b80577f39dede7a1bf3d8d0909d5",
+  "prompts": {},
+  "sessions": {
+    "s_f5ebe617f2ec28": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8396284b-762e-44ab-b73b-9e1a9761418f",
+        "model": "claude-fable-5-2"
+      },
+      "human_author": "Andy Aragon <hi@andymai.com>"
+    }
+  }
+}
