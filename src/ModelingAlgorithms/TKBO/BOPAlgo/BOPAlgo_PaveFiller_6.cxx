@@ -75,9 +75,128 @@
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopTools_ShapeMapHasher.hxx>
+
+#include <algorithm>
+#include <utility>
+#include <vector>
 class BOPDS_PaveBlock;
 
 static double ToleranceFF(const BRepAdaptor_Surface& aBAS1, const BRepAdaptor_Surface& aBAS2);
+
+//=================================================================================================
+
+namespace
+{
+//! Rows of the VV, VE, EE, VF and EF interference tables, listed by their first shape.
+//! GetStickVertices reads each table in full for each pair of faces. This index gives
+//! the same vertices from the rows of the sub-shapes of the two faces only.
+class StickRows
+{
+public:
+  //! Adds to theMVStick and theMVEF the new vertices of the interferences
+  //! between the shapes of theMI, in the order of the tables.
+  void Collect(BOPDS_DS&                   theDS,
+               const NCollection_Map<int>& theMI,
+               NCollection_Map<int>&       theMVStick,
+               NCollection_Map<int>&       theMVEF)
+  {
+    update(theDS);
+    myFound.clear();
+    for (NCollection_Map<int>::Iterator aIt(theMI); aIt.More(); aIt.Next())
+    {
+      const int nS = aIt.Value();
+      if (nS < 0 || nS >= static_cast<int>(myRows.size()))
+      {
+        continue;
+      }
+      for (const std::pair<int, int>& aRow : myRows[nS])
+      {
+        const BOPDS_Interf& aInt = interf(theDS, aRow.first, aRow.second);
+        if (aInt.HasIndexNew() && theMI.Contains(aInt.Index2()))
+        {
+          myFound.push_back(aRow);
+        }
+      }
+    }
+    std::sort(myFound.begin(), myFound.end());
+    for (const std::pair<int, int>& aRow : myFound)
+    {
+      int nVNew = interf(theDS, aRow.first, aRow.second).IndexNew();
+      theDS.HasShapeSD(nVNew, nVNew);
+      theMVStick.Add(nVNew);
+      if (aRow.first == THE_EF)
+      {
+        theMVEF.Add(nVNew);
+      }
+    }
+  }
+
+private:
+  static constexpr int THE_NB_TABLES = 5;
+  static constexpr int THE_EF        = 4;
+
+  static int length(BOPDS_DS& theDS, const int theTable)
+  {
+    switch (theTable)
+    {
+      case 0:
+        return theDS.InterfVV().Length();
+      case 1:
+        return theDS.InterfVE().Length();
+      case 2:
+        return theDS.InterfEE().Length();
+      case 3:
+        return theDS.InterfVF().Length();
+      default:
+        return theDS.InterfEF().Length();
+    }
+  }
+
+  static const BOPDS_Interf& interf(BOPDS_DS& theDS, const int theTable, const int theRow)
+  {
+    switch (theTable)
+    {
+      case 0:
+        return theDS.InterfVV()(theRow);
+      case 1:
+        return theDS.InterfVE()(theRow);
+      case 2:
+        return theDS.InterfEE()(theRow);
+      case 3:
+        return theDS.InterfVF()(theRow);
+      default:
+        return theDS.InterfEF()(theRow);
+    }
+  }
+
+  //! Lists the rows that the tables got after the last call.
+  void update(BOPDS_DS& theDS)
+  {
+    for (int aTable = 0; aTable < THE_NB_TABLES; ++aTable)
+    {
+      const int aNb = length(theDS, aTable);
+      for (int aRow = myDone[aTable]; aRow < aNb; ++aRow)
+      {
+        const int nS1 = interf(theDS, aTable, aRow).Index1();
+        if (nS1 < 0)
+        {
+          continue;
+        }
+        if (nS1 >= static_cast<int>(myRows.size()))
+        {
+          myRows.resize(nS1 + 1);
+        }
+        myRows[nS1].emplace_back(aTable, aRow);
+      }
+      myDone[aTable] = aNb;
+    }
+  }
+
+  std::vector<std::vector<std::pair<int, int>>> myRows;
+  std::vector<std::pair<int, int>>              myFound;
+  int                                           myDone[THE_NB_TABLES] = {0, 0, 0, 0, 0};
+};
+} // namespace
 
 //=================================================================================================
 
@@ -718,6 +837,7 @@ void BOPAlgo_PaveFiller::MakeBlocks(const Message_ProgressRange& theRange)
   //
   // The vector aFFToRecheck contains indices of potentially problematic Face-Face intersections
   NCollection_DynamicArray<int> aFFToRecheck;
+  StickRows                     aStickRows;
   // aNbFF may be increased while processing this loop, because it is necessary to recheck
   // some of Face-Face intersections to avoid missing section edges
   // aNbFF will be increased to the number of potentially problematic Face-Face intersections
@@ -791,7 +911,10 @@ void BOPAlgo_PaveFiller::MakeBlocks(const Message_ProgressRange& theRange)
     }
     //
     // 2. Treat Curves
-    GetStickVertices(nF1, nF2, aMVStick, aMVEF, aMI);
+    aMI.Clear();
+    GetFullShapeMap(nF1, aMI);
+    GetFullShapeMap(nF2, aMI);
+    aStickRows.Collect(*myDS, aMI, aMVStick, aMVEF);
     //
     for (j = 0; j < aNbC; ++j)
     {
@@ -1202,6 +1325,7 @@ void BOPAlgo_PaveFiller::PostTreatFF(
 
   // Find unused vertices
   NCollection_IndexedMap<TopoDS_Shape, TopTools_ShapeMapHasher> VertsUnused;
+  StickRows                                                     aStickRows;
   NCollection_Map<int>                                          IndMap;
   for (int i = 0; i < aNbFF; i++)
   {
@@ -1210,7 +1334,9 @@ void BOPAlgo_PaveFiller::PostTreatFF(
     aFF.Indices(nF1, nF2);
 
     NCollection_Map<int> aMV, aMVEF, aMI;
-    GetStickVertices(nF1, nF2, aMV, aMVEF, aMI);
+    GetFullShapeMap(nF1, aMI);
+    GetFullShapeMap(nF2, aMI);
+    aStickRows.Collect(*myDS, aMI, aMV, aMVEF);
     NCollection_DynamicArray<BOPDS_Curve>& aVC = aFF.ChangeCurves();
     RemoveUsedVertices(aVC, aMV);
 
