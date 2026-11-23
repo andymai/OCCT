@@ -1,0 +1,26 @@
+src/ModelingAlgorithms/TKFillet/GTests/FILES.cmake
+  s_c841a60f78b473::t_6970fea5950995 8
+src/ModelingAlgorithms/TKFillet/ChFi3d/ChFi3d_Builder_C1.cxx
+  s_c841a60f78b473::t_21f2228e644117 2803-2804
+src/ModelingAlgorithms/TKFillet/GTests/ChFi3d_Builder_C1_Test.cxx
+  s_c841a60f78b473::t_21f2228e644117 94-95
+  s_c841a60f78b473::t_f8937cd051cb45 1-31,33-36,38-46,48-59,64-81,84-86,88-93,96-100,108,110-112,114-117,120-131,135-137,139-153,155,170,177,196-219,225-261,266,268,270,272-274,276,278-324,326-356
+  s_c841a60f78b473::t_fd3dbe3a937b45 37,47,220-224,275,277,325
+  s_c841a60f78b473::t_bdd9b81e22a00b 32,60-63,82-83,87,101-107,109,113,118-119,132-134,138,154,156-169,171-176,178-195,262-265,267,269,271
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "db75c274f9020f936f306aca2db893def4973d95",
+  "prompts": {},
+  "sessions": {
+    "s_c841a60f78b473": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fc7126d7-c8e2-4b2b-b82e-359d69a58281",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Andy Aragon <hi@andymai.com>"
+    }
+  }
+}
