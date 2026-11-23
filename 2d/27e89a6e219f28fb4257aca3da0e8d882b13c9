@@ -1,0 +1,21 @@
+src/ModelingAlgorithms/TKBO/BOPAlgo/BOPAlgo_PaveFiller_6.cxx
+  s_f5ebe617f2ec28::t_653358257011ad 78-81,88-200,914-917,1328,1337-1339
+  s_f5ebe617f2ec28::t_507d6ca6d40390 840
+  s_f5ebe617f2ec28::t_923a1fffd03cf0 201-202
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2d27e89a6e219f28fb4257aca3da0e8d882b13c9",
+  "prompts": {},
+  "sessions": {
+    "s_f5ebe617f2ec28": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8396284b-762e-44ab-b73b-9e1a9761418f",
+        "model": "claude-fable-5-2"
+      },
+      "human_author": "Andy Aragon <hi@andymai.com>"
+    }
+  }
+}
