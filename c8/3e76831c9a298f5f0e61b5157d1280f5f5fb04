@@ -1,0 +1,14 @@
+src/ModelingData/TKGeomBase/Extrema/Extrema_ExtCS.cxx
+  h_b755e1950659f4 30,146-169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c83e76831c9a298f5f0e61b5157d1280f5f5fb04",
+  "prompts": {},
+  "humans": {
+    "h_b755e1950659f4": {
+      "author": "Andy Aragon <hi@andymai.com>"
+    }
+  }
+}
