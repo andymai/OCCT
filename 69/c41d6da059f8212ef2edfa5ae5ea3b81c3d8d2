@@ -1,0 +1,19 @@
+src/ModelingData/TKGeomBase/IntAna/IntAna_QuadQuadGeo.cxx
+  s_f5ebe617f2ec28::t_961a9e2baf4cad 57-59,141-147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "69c41d6da059f8212ef2edfa5ae5ea3b81c3d8d2",
+  "prompts": {},
+  "sessions": {
+    "s_f5ebe617f2ec28": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8396284b-762e-44ab-b73b-9e1a9761418f",
+        "model": "claude-fable-5-2"
+      },
+      "human_author": "Andy Aragon <hi@andymai.com>"
+    }
+  }
+}
