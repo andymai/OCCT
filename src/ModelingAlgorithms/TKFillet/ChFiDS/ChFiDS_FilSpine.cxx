@@ -26,6 +26,7 @@
 #include <Law_S.hxx>
 #include <Precision.hxx>
 #include <Standard_DomainError.hxx>
+#include <Standard_OutOfRange.hxx>
 #include <Standard_Type.hxx>
 #include <gp_Pnt2d.hxx>
 #include <NCollection_Array1.hxx>
@@ -562,6 +563,14 @@ occ::handle<Law_Composite> ChFiDS_FilSpine::ComputeLaw(const occ::handle<ChFiDS_
       bidfin += len;
     }
     nbed = bidfin - ideb + 1;
+  }
+  // An elementary spine that ends before the edge it starts on covers no edge, and
+  // ind(1) and ind(nbed) below would read outside the array. Raised unconditionally
+  // rather than through the Standard_OutOfRange_Raise_if in NCollection_Array1,
+  // which No_Exception compiles out of Release builds.
+  if (nbed < 1)
+  {
+    throw Standard_OutOfRange("ChFiDS_FilSpine::ComputeLaw : elementary spine covers no edge");
   }
   NCollection_Array1<int> ind(1, nbed);
   int                     j = 1;
