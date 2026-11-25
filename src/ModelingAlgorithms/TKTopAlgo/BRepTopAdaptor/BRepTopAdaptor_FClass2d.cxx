@@ -33,6 +33,7 @@
 #include <Precision.hxx>
 #include <NCollection_Array1.hxx>
 #include <NCollection_Sequence.hxx>
+#include <Standard_RangeError.hxx>
 #include <TopAbs_Orientation.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
@@ -410,6 +411,14 @@ BRepTopAdaptor_FClass2d::BRepTopAdaptor_FClass2d(const TopoDS_Face& aFace, const
             }
           }
           nbpnts = SeqPnt2d.Length();
+          // A discretization that fails on the first edge leaves fewer than two points,
+          // and Resize() and PClass(im1) below would index outside the arrays. Raised
+          // unconditionally rather than through the Raise_if checks in NCollection_Array1,
+          // which No_Exception compiles out of Release builds.
+          if (nbpnts < 2)
+          {
+            throw Standard_RangeError("BRepTopAdaptor_FClass2d : no polygon for the wire");
+          }
           PClass.Resize(1, nbpnts, false);
           im1            = nbpnts - 1;
           im0            = 1;
